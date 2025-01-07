@@ -1,63 +1,62 @@
 import React, { useContext, useState } from "react";
+import toast from "react-hot-toast";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Auth/AuthProvider";
 
 const Login = () => {
-  const {
-    login,
-    setError,
-    error,
-    loading,
-    success,
-    setSuccess,
-    signUpWithGoogle,
-  } = useContext(AuthContext);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
+  const { login, loading, setError, setSuccess, signUpWithGoogle } =
+    useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const from = location.state?.from?.pathname || "/";
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
 
+    setError("");
+    setSuccess("");
+
     try {
-      setError("");
       await login(email, password);
-      setTimeout(() => {
-        navigate(from);
-      }, 3000);
+      setSuccess("Login successful!");
+      toast.success("Login successful! Redirecting...");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message, {
+        duration: 4000,
+        position: "top-center",
+      });
     }
   };
 
-  // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      setError("");
       await signUpWithGoogle();
-      toast.success("Google login successful! Redirecting...");
-      setTimeout(() => {
-        navigate(from);
-      }, 3000);
+      toast.success("Google sign-in successful! Redirecting...");
+      navigate("/");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message, {
+        duration: 4000,
+        position: "top-center",
+      });
     }
   };
 
   return (
-    <div className="mx-auto min-h-screen flex justify-center items-center bg-gradient-to-r from-red-500 to-yellow-500">
-      <div className="card bg-white w-full max-w-md shadow-xl rounded-lg">
+    <div className="mx-auto min-h-screen p-16 flex max-md:flex-col-reverse justify-center items-center bg-base-200">
+      <div className="md:w-1/2">
+        <img src="./Login.png" alt="Login Illustration" />
+      </div>
+
+      <div className="card bg-base-100 w-full max-w-md shadow-xl rounded-lg">
         <form onSubmit={handleSubmit} className="card-body p-6">
           <h2 className="text-center text-3xl font-bold text-base-content mb-6">
             Welcome Back!
           </h2>
-          {/* Email Field */}
+
           <div className="form-control mb-4">
             <label className="label">
               <span className="label-text text-base-content">Email</span>
@@ -71,8 +70,7 @@ const Login = () => {
             />
           </div>
 
-          {/* Password Field */}
-          <div className="form-control mb-4 relative">
+          <div className="form-control mb-6 relative">
             <label className="label">
               <span className="label-text text-base-content">Password</span>
             </label>
@@ -92,35 +90,31 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Submit Button */}
           <div className="form-control mt-6">
             <button
               type="submit"
-              className="btn bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-orange-600 text-white w-full"
+              className="btn bg-orange-500 hover:bg-orange-600 text-white w-full"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
           </div>
 
-          {/* Register Link */}
           <p className="text-center text-base-content mt-4">
-            Don't have an account?{" "}
+            Don’t have an account?{" "}
             <Link to="/register" className="text-orange-500 hover:underline">
-              Register Now
+              Sign Up
             </Link>
           </p>
 
-          {/* OR Divider */}
           <div className="divider my-6 text-base-content">OR</div>
 
-          {/* Google Login Button */}
           <button
             onClick={handleGoogleLogin}
             className="btn btn-outline text-orange-500 border-orange-500 w-full hover:bg-orange-500 hover:text-white"
             disabled={loading}
           >
-            Login with Google
+            Sign in with Google
           </button>
         </form>
       </div>
